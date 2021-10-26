@@ -1,0 +1,100 @@
+@echo off
+cls
+:: Abrir CMD como Administrador
+:-------------------------------------
+REM  --> Check for permissions
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
+
+REM --> If error flag set, we do not have admin.
+if '%errorlevel%' NEQ '0' (
+    echo Requesting administrative privileges...
+    goto UACPrompt
+) else ( goto gotAdmin )
+
+:UACPrompt
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    set params = %*:"=""
+    echo UAC.ShellExecute "cmd.exe", "/c %~s0 %params%", "", "runas", 1 >> "%temp%\getadmin.vbs"
+
+    "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
+    exit /B
+
+:gotAdmin
+    pushd "%CD%"
+    CD /D "%~dp0"
+:--------------------------------------
+cls
+:: Cria variavel para o Nome do Computador
+::
+@Color 0A
+@echo.
+@echo V.3.0 (03/2019) - Roger L. Rios
+@echo -----     -----     -----     -----     -----     -----
+@echo SCRIPT 01 - Alterar o nome do computador
+@echo.
+@echo.
+@set /p comp_name=Digite o Nome do Computador: 
+@echo.
+::--------------------------------------------------
+::Exibe a variavel salva em comp_name
+::
+@echo O nome do computador sera alterado para: %comp_name% 
+@echo.
+@echo.
+:--------------------------------------
+@timeout /t 10
+
+@wmic computersystem where name="%computername%" rename name=%comp_name%
+::del "%temp%\sn.txt"
+@endlocal
+@timeout /t 5
+:-------------------------------------
+cls
+@echo.
+@echo V.3.0 (03/2019) - Roger L. Rios
+@echo -----     -----     -----     -----     -----     -----
+@echo SCRIPT 02 - Atualiza endereco IP do Computador
+@echo.
+@echo.
+@timeout /t 10
+@echo.
+@ipconfig /release
+@echo.
+@timeout /t 10
+@echo.
+@ipconfig /renew
+@echo.
+@timeout /t 10
+@echo.
+@ipconfig /flushdns
+@echo.
+cls
+@echo.
+@echo.
+@echo O endereco IP do computador foi renovado.
+@echo.
+@echo.
+@timeout /t 5
+:-------------------------------------
+cls
+@echo.
+@echo V.3.0 (03/2019) - Roger L. Rios
+@echo -----     -----     -----     -----     -----     -----
+@echo SCRIPT 03 - Instala a Chave de Ativacao ao Windows
+@echo.
+@echo.
+@timeout /t 10
+@echo.
+@slmgr /ipk (INSERIR A CHAVE DE ATIVAÇÃO DO WINDOWS)
+@echo.
+@echo Realiza a ativacao do Windows
+@echo.
+@timeout /t 10
+@echo.
+@slmgr /ato
+@echo.
+@echo O Produto foi ativado. 
+@echo Obrigado!
+@timeout /t 10
+:-------------------------------------
